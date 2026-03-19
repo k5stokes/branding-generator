@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Branding Generator</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<link rel="icon" type="image/png" href="favicon/favicon-96x96.png" sizes="96x96" />
+		<link rel="icon" type="image/svg+xml" href="favicon/favicon.svg" />
+		<link rel="shortcut icon" href="favicon/favicon.ico" />
+		<link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png" />
+		<link rel="manifest" href="favicon/site.webmanifest" />
+
+		<link rel="profile" href="https://gmpg.org/xfn/11">
+		
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+		<link href="normalize.css" rel="stylesheet">
+		<link href="style.css" rel="stylesheet">
+	</head>
+
+<body>
+<!-- Favorites Heart -->
+<div id="favorite-heart">
+	<div class="heart-outline">
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M442.9 144C415.6 144 389.9 157.1 373.9 179.2L339.5 226.8C335 233 327.8 236.7 320.1 236.7C312.4 236.7 305.2 233 300.7 226.8L266.3 179.2C250.3 157.1 224.6 144 197.3 144C150.3 144 112.2 182.1 112.2 229.1C112.2 279 144.2 327.5 180.3 371.4C221.4 421.4 271.7 465.4 306.2 491.7C309.4 494.1 314.1 495.9 320.2 495.9C326.3 495.9 331 494.1 334.2 491.7C368.7 465.4 419 421.3 460.1 371.4C496.3 327.5 528.2 279 528.2 229.1C528.2 182.1 490.1 144 443.1 144zM335 151.1C360 116.5 400.2 96 442.9 96C516.4 96 576 155.6 576 229.1C576 297.7 533.1 358 496.9 401.9C452.8 455.5 399.6 502 363.1 529.8C350.8 539.2 335.6 543.9 320 543.9C304.4 543.9 289.2 539.2 276.9 529.8C240.4 502 187.2 455.5 143.1 402C106.9 358.1 64 297.7 64 229.1C64 155.6 123.6 96 197.1 96C239.8 96 280 116.5 305 151.1L320 171.8L335 151.1z"/></svg>
+	</div>
+	<div class="heart-fill display-none">
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M305 151.1L320 171.8L335 151.1C360 116.5 400.2 96 442.9 96C516.4 96 576 155.6 576 229.1L576 231.7C576 343.9 436.1 474.2 363.1 529.9C350.7 539.3 335.5 544 320 544C304.5 544 289.2 539.4 276.9 529.9C203.9 474.2 64 343.9 64 231.7L64 229.1C64 155.6 123.6 96 197.1 96C239.8 96 280 116.5 305 151.1z"/></svg>
+	</div>
+</div>
+
+<article class="branding">
+	<div id="content" class="">
+		<div class="content-wrapper">
+			<h2>Branding Generator</h2>
+			<h3>For Your New Web Project</h3>
+		</div>
+	</div>
+	<div class="accent-colors">
+		<div class="grid grid-2-1-col">
+			<div id="accentColor2" class="column accent-color">&nbsp;</div>
+			<div id="accentColor3" class="column accent-color">&nbsp;</div>
+		</div>
+	</div>
+	<div class="wrapper">
+		<div class="grid grid-4-col">
+			<div class="column">
+				<h3>Fonts</h3>
+				<a id="generate-font-button" class="button button-primary" href="#">New Font</a>
+				<p><strong>Font:</strong> <span id="font-name"></span></p>
+				<div class="font-select-wrapper">
+					<form id="font-selector">
+                        <label for="font-select">Font Category:</label>
+						<select id="font-select">
+							<option value="serif">Serif</option>
+							<option value="sans-serif">Sans-serif</option>
+							<option value="display">Display</option>
+                            <option value="handwriting">Handwriting</option>
+                            <option value="monospace">Monospace</option>
+						</select>
+					</form>
+				</div>
+			</div>
+			
+			<div class="column">
+				<h3>Colors</h3>
+				<a id="generate-colors-button" class="button button-primary" href="#">New Colors</a>
+				<p><strong>Primary Color:</strong>
+					<span id="color1" class="color"></span>
+				</p>
+				<p><strong>Accent Color 1:</strong>
+					<span id="color2" class="color"></span>
+				</p>
+				<p><strong>Accent Color 2:</strong>
+					<span id="color3" class="color"></span>
+				</p>
+			</div>
+		</div> <!-- close grid -->
+	</div>
+	
+	<div class="favorites-list">
+		<div class="wrapper">
+			<h3>Favorites</h3>
+			<div id="favorites-list" class="grid grid-4-col">&nbsp;</div>
+		</div>
+	</div>
+</article>
+
+<script src="scripts.js"></script>
+</body>
+</html>

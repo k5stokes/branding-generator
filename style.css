@@ -1,0 +1,142 @@
+/* Home Page */
+.site-branding, #primary-menu, #colophon {
+	display: none;
+}	
+
+
+/* Utilities*/
+.grid {
+	display: grid;
+	gap: 20px;
+}
+.grid.grid-4-col {
+	grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+.grid.grid-2-1-col {
+	grid-template-columns: 2fr 1fr;
+}
+.grid .column {
+	margin-bottom: 20px;
+}
+.wrapper {
+	position: relative;
+	width: 100%;
+	margin: 0 auto;
+	padding: 20px;
+	max-width: 1440px;
+}
+.display-none {
+	display: none;
+}
+.color-red {
+	color: darkred !important;
+}
+
+/* Typography */
+p {
+	margin: 0 0 5px;
+}
+h3, h4, h5 {
+	color: #333;
+	font-weight: normal;
+	line-height: 1.5rem;
+	margin: 0 0 15px;
+}
+h3 {
+	font-size: 1.5rem;
+}
+.button, a.button {
+	color: #333;
+}
+.button-primary, a.button-primary {
+	padding: 10px;
+	box-shadow: 1px 1px 1px 1px;
+	border: 1px solid #333;
+	text-decoration: none;
+	margin: 0 0 10px;
+	display: inline-block;
+}
+a.button.button-primary:hover, a.button.button-primary:active {
+	box-shadow: 1px 1px 0px 0px;
+}
+.button.button-secondary, a.button.button-secondary {
+	display: block;
+	margin-bottom: 5px;
+}
+
+/* #content element */
+#content {
+	text-align: center;
+	height: 50vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: background-color 0.2s ease-in-out;
+}
+#content h2 {
+	font-size: 72px;
+	line-height: 1em;
+	margin: 0 0 20px;
+	font-weight: normal;
+}
+#content h3 {
+	font-size: 28px;
+	line-height: 1em;
+	margin: 0 0 10px;
+	font-weight: normal;
+}
+#content h2, #content h3, #content p, #content div, #content span {
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* IE 10+ */
+    user-select: none;         /* Standard syntax */
+}
+.content-wrapper {
+	opacity: 1;
+	visibility: visible;
+	transition: opacity 0.2s ease-in-out;
+	will-change: opacity;
+}
+.hidden, .content-wrapper.hidden {
+	opacity: 0;
+	pointer-events: none;
+	visibility: hidden;
+}
+.accent-color {
+	height: 60px;
+}
+
+/* Favorites */
+#favorite-heart {
+	width: 40px;
+	height: 40px;
+	position: absolute;
+	top: 20px;
+	right: 20px;
+	cursor: pointer;
+	padding: 5px;
+	border-radius: 100%;
+	background: rgba(255,255,255,0.75);
+	box-shadow: 1px 1px 1px 1px;
+}
+/*
+.heart-outline {
+	display: block;
+}
+.heart-fill {
+	display: none;
+}
+*/
+
+/* Favorites List */
+.favorites-list {
+	border-top: 1px solid #999;
+}
+
+/* span */
+span.color {
+	display: inline-block;
+	box-sizing: border-box;
+	padding: 5px;
+}
