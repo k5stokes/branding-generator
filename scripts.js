@@ -47,6 +47,28 @@ document.addEventListener('DOMContentLoaded', function () {
 	  return luminance > 0.5 ? '#000000' : '#ffffff';
 	}
 	
+	// Favorites stored in localStorage as an array of { font, colors, timestamp }
+	function getFavorites() {
+		return JSON.parse(localStorage.getItem('myFavorites')) || [];
+	}
+
+	function findFavoriteIndex(favorites, fontName, colors) {
+		return favorites.findIndex(favorite =>
+			favorite.font === fontName &&
+			favorite.colors[0] === colors[0] &&
+			favorite.colors[1] === colors[1] &&
+			favorite.colors[2] === colors[2]
+		);
+	}
+
+	// Reflect whether the current font/color combo is already saved as a favorite
+	function syncFavoriteHeartState(fontName, colors) {
+		const isFavorited = findFavoriteIndex(getFavorites(), fontName, colors) !== -1;
+		heartFill.classList.toggle('display-none', !isFavorited);
+		heartOutline.classList.toggle('display-none', isFavorited);
+		favoriteButton.classList.toggle('active', isFavorited);
+	}
+	
 	// Show content when both APIs are complete
 	function showContentIfReady() {
 		console.log('showContentIfReady()');
@@ -70,6 +92,8 @@ document.addEventListener('DOMContentLoaded', function () {
 			urlParams.set('color3', colorName3);
 			// Update the browser's URL bar with the new params
 			window.history.pushState({}, '', '?' + urlParams.toString());
+			// Reflect whether this combo is already a saved favorite
+			syncFavoriteHeartState(fontName, [colorName1, colorName2, colorName3]);
 		} else {
 			console.log('not ready :(');
 			console.log('apiState.fontReady = ' + apiState.fontReady);
@@ -408,94 +432,124 @@ document.addEventListener('DOMContentLoaded', function () {
 	favoriteButton.addEventListener('click', function(event) {
 		event.preventDefault();
 		
-		if (favoriteButton.classList.contains('active')) {
-			heartFill.classList.add('display-none');
-			heartOutline.classList.remove('display-none');
-			favoriteButton.classList.remove('active');
+		let fontName = document.getElementById('font-name').innerHTML;
+		let colorName1 = document.getElementById('color1').innerHTML;
+		let colorName2 = document.getElementById('color2').innerHTML;
+		let colorName3 = document.getElementById('color3').innerHTML;
+		const colors = [colorName1, colorName2, colorName3];
+
+		const favorites = getFavorites();
+		const existingIndex = findFavoriteIndex(favorites, fontName, colors);
+
+		if (existingIndex !== -1) {
+			// Already favorited, so remove it
+			favorites.splice(existingIndex, 1);
+			localStorage.setItem('myFavorites', JSON.stringify(favorites));
+			removeFavoriteCardFromList(existingIndex);
 		} else {
-			heartFill.classList.remove('display-none');
-			heartOutline.classList.add('display-none');
-			favoriteButton.classList.add('active');
-			
-			let fontName = document.getElementById('font-name').innerHTML;
-			let colorName1 = document.getElementById('color1').innerHTML;
-			let colorName2 = document.getElementById('color2').innerHTML;
-			let colorName3 = document.getElementById('color3').innerHTML;
-			
-			// Testing local storage for favorites
-			const favorite = {
+			// Not yet favorited, so add it
+			const newFavorite = {
 				font: fontName,
-				colors: [colorName1, colorName2, colorName3],
+				colors: colors,
 				timestamp: Date.now()
 			};
-	
-			// Saving to LocalStorage
-			function saveFavorite(newFavorite) {
-				const currentFavorites = JSON.parse(localStorage.getItem('myFavorites')) || [];
-				currentFavorites.push(newFavorite);
-				localStorage.setItem('myFavorites', JSON.stringify(currentFavorites));
-			}
-			
-			saveFavorite(favorite);
-	
-			// Retrieving from LocalStorage
-			const savedFavorites = JSON.parse(localStorage.getItem('myFavorites'));
-			console.log("Saved Favorites from LocalStorage:", savedFavorites);
+			favorites.push(newFavorite);
+			localStorage.setItem('myFavorites', JSON.stringify(favorites));
+			addFavoriteCardToList(newFavorite, favorites.length - 1);
 		}
+
+		syncFavoriteHeartState(fontName, colors);
 	})
 	
 	// List Favorites
-	let favoritesHTML = '';
 	let favoritesWrapper = document.querySelector('.favorites-list');
 	let favoritesList = document.getElementById('favorites-list');
 	if (favoritesWrapper) {
 		favoritesWrapper.classList.add('hidden');
 	}
-	const savedFavorites = JSON.parse(localStorage.getItem('myFavorites'));
-	if (savedFavorites) {
+
+	// Builds the inner markup for a single favorite card
+	function buildFavoriteCardHTML(favorite, index) {
+		let textColor = getContrastColor(favorite.colors[0]);
+		let favoriteLink = urlWithoutQuery + "?font=" + encodeURIComponent(favorite.font) + "&color1=" + encodeURIComponent(favorite.colors[0]) + "&color2=" + encodeURIComponent(favorite.colors[1]) + "&color3=" + encodeURIComponent(favorite.colors[2]);
+		let html = '';
+		html += '<p><strong>Font:</strong> ';
+		html += '<span id="font-name_' + index + '" class="font-name">' + favorite.font + '</span></p>';
+		html += '<p><strong>Primary Color:</strong> ';
+		html += '<span id="color1_' + index + '" class="color" style="background: ' + favorite.colors[0] + '; color: ' + textColor + ';">' + favorite.colors[0] + '</span></p>';
+		html += '<a href="' + favoriteLink + '" class="button button-secondary">Load Favorite</a>';
+		html += '<a href="' + index + '" class="button button-secondary color-red deleteFavorite">Delete</a>';
+		return html;
+	}
+
+	// Wires up the delete link for a favorite card at the given index
+	function attachDeleteListener(index) {
+		let deleteFavorite = document.querySelector('#favorite_' + index + ' .deleteFavorite');
+		if (deleteFavorite) {
+			deleteFavorite.addEventListener('click', function (event) {
+				event.preventDefault();
+				// Get the current favorites array
+				const currentFavorites = getFavorites();
+				// Remove the item at this index
+				currentFavorites.splice(index, 1);
+				// Save the updated array back to localStorage
+				localStorage.setItem('myFavorites', JSON.stringify(currentFavorites));
+				// Fade the deleted item out of the UI
+				removeFavoriteCardFromList(index);
+			});
+		}
+	}
+
+	// Appends a newly favorited combo to the Favorites list and fades it in
+	function addFavoriteCardToList(favorite, index) {
+		if (!favoritesWrapper || !favoritesList) return;
+
+		// Clear the empty-state placeholder before adding the first card
+		if (!favoritesList.querySelector('.column')) {
+			favoritesList.innerHTML = '';
+		}
+
 		favoritesWrapper.classList.remove('hidden');
+
+		const card = document.createElement('div');
+		card.id = 'favorite_' + index;
+		card.className = 'column favorite-card-enter';
+		card.innerHTML = buildFavoriteCardHTML(favorite, index);
+		favoritesList.appendChild(card);
+
+		attachDeleteListener(index);
+
+		// Force a reflow so removing the enter class actually triggers the fade transition
+		void card.offsetWidth;
+		card.classList.remove('favorite-card-enter');
+	}
+
+	// Fades out and removes a card when its favorite is un-favorited via the heart icon
+	function removeFavoriteCardFromList(index) {
+		let favoriteEntry = document.getElementById('favorite_' + index);
+		if (!favoriteEntry) return;
+		favoriteEntry.style.opacity = "0";
+		setTimeout(() => {
+			favoriteEntry.remove();
+			if (favoritesWrapper && favoritesList && !favoritesList.querySelector('.column')) {
+				favoritesWrapper.classList.add('hidden');
+			}
+		}, 300);
+	}
+
+	const savedFavorites = getFavorites();
+	if (savedFavorites.length) {
+		favoritesWrapper.classList.remove('hidden');
+		let favoritesHTML = '';
 		savedFavorites.forEach((favorite, index) => {
-			let textColor = getContrastColor(favorite.colors[0]);
-			let favoriteLink = urlWithoutQuery + "?font=" + encodeURIComponent(favorite.font) + "&color1=" + encodeURIComponent(favorite.colors[0]) + "&color2=" + encodeURIComponent(favorite.colors[1]) + "&color3=" + encodeURIComponent(favorite.colors[2]);
-			// fontName.replace(/\s+/g, '+');
-			favoritesHTML += '<div id="favorite_' + index + '" class="column">';
-			favoritesHTML += '<p><strong>Font:</strong> ';
-			favoritesHTML += '<span id="font-name_' + index +'" class="font-name">' + favorite.font + '</span></p>';
-			favoritesHTML += '<p><strong>Primary Color:</strong> ';
-			favoritesHTML += '<span id="color1_' + index +'" class="color" style="background: ' + favorite.colors[0] + '; color: ' + textColor + ';">' + favorite.colors[0] + '</span></p>';
-			/* Accent colors
-			favoritesHTML += '<p><strong>Accent Color 1:</strong> ';
-			favoritesHTML += '<span id="color2" class="color">' + favorite.colors[1] + '</span></p>';
-			favoritesHTML += '<p><strong>Accent Color 2:</strong> ';
-			favoritesHTML += '<span id="color3" class="color"' + favorite.colors[2] + '></span></p>';
-			*/
-			favoritesHTML += '<a href="' + favoriteLink + '" class="button button-secondary">Load Favorite</a>';
-			favoritesHTML += '<a href="' + index + '" class="button button-secondary color-red deleteFavorite">Delete</a>';
-			favoritesHTML += '</div>';
+			favoritesHTML += '<div id="favorite_' + index + '" class="column">' + buildFavoriteCardHTML(favorite, index) + '</div>';
 		});
-		
+
 		// Set all HTML at once after loop completes
 		favoritesList.innerHTML = favoritesHTML;
 		
 		// Now add event listeners to all delete buttons
-		savedFavorites.forEach((favorite, index) => {
-			let deleteFavorite = document.querySelector('#favorite_' + index + ' .deleteFavorite');
-			if (deleteFavorite) {
-				deleteFavorite.addEventListener('click', function (event) {
-					event.preventDefault();
-					// Get the current favorites array
-					const currentFavorites = JSON.parse(localStorage.getItem('myFavorites')) || [];
-					// Remove the item at this index
-					currentFavorites.splice(index, 1);
-					// Save the updated array back to localStorage
-					localStorage.setItem('myFavorites', JSON.stringify(currentFavorites));
-					// Hide the deleted item from the UI
-					let favoriteEntry = document.getElementById('favorite_' + index);
-					favoriteEntry.style.opacity = "0";
-					setTimeout(() => { favoriteEntry.style.display = "none"; }, 500);
-				});
-			}
-		});
+		savedFavorites.forEach((favorite, index) => attachDeleteListener(index));
 	}
 
 }, false); // end DOMContentLoaded

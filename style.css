@@ -17,6 +17,10 @@
 }
 .grid .column {
 	margin-bottom: 20px;
+	transition: opacity 0.3s ease-in-out;
+}
+.grid .column.favorite-card-enter {
+	opacity: 0;
 }
 .wrapper {
 	position: relative;
