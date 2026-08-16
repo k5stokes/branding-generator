@@ -158,27 +158,17 @@ document.addEventListener('DOMContentLoaded', function () {
         // 4. Inject the link into the document <head>
         document.head.appendChild(link);
 
-        // Don't let a stale "ready" flag reveal content before this font actually loads
-        apiState.fontReady = false;
-
         // 5. Apply the font to your preview element once the font has loaded
         const previewElement = document.getElementById('content');
         link.onload = () => {
-            // link.onload only means the stylesheet (with @font-face rules) arrived, not the
-            // actual font file, so wait for the Font Loading API to confirm it's renderable.
-            // Otherwise font-display:swap can flash a fallback font after we reveal the content.
-            document.fonts.load(`400 1em "${fontName}"`).catch((error) => {
-                console.error(`Error loading font '${fontName}':`, error);
-            }).finally(() => {
-                if (previewElement) {
-                    // Apply the font family using CSS
-                    previewElement.style.fontFamily = `'${fontName}', ${fontCategory}`;
-                    // Mark font as ready and check if content should be shown
-                    apiState.fontReady = true;
-                    showContentIfReady();
-                    console.log(`Font '${fontName}' loaded and applied with loadAndApplyFont().`);
-                }
-            });
+            if (previewElement) {
+                // Apply the font family using CSS
+                previewElement.style.fontFamily = `'${fontName}', ${fontCategory}`;
+                // Mark font as ready and check if content should be shown
+                apiState.fontReady = true;
+                showContentIfReady();
+                console.log(`Font '${fontName}' loaded and applied with loadAndApplyFont().`);
+            }
         };
 
         // 6. Display the name of the font in the UI
@@ -218,9 +208,6 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Huemint API Call
 	async function getHuemintColors() {
-		// Don't let a stale "ready" flag reveal content before new colors actually load
-		apiState.colorsReady = false;
-
 		var huemint_data = {
 			"mode":"transformer", // transformer, diffusion or random
 			"num_colors":4, // max 12, min 2
@@ -272,8 +259,6 @@ document.addEventListener('DOMContentLoaded', function () {
 			colorElem3.style.color = getContrastColor(tertiaryColor);
 			accentElem2.style.backgroundColor = secondaryColor;
 			accentElem3.style.backgroundColor = tertiaryColor;
-			apiState.colorsReady = true;
-			showContentIfReady();
 		})
 		.catch(error => console.error("Error:", error));
 	}
@@ -291,11 +276,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     
     // Check for saved font and colors in the URL parameters
-	if (urlParams.size !== 0) {		// Hide content wrapper until the saved font actually loads
-		const previewElementContentWrapper = document.querySelector('.content-wrapper');
-		if (previewElementContentWrapper) {
-			previewElementContentWrapper.classList.add('hidden');
-		}
+	if (urlParams.size !== 0) {
 		// Get font and colors from URL parameters
 		const color1Param = urlParams.get('color1');
 		const color2Param = urlParams.get('color2');
@@ -328,8 +309,8 @@ document.addEventListener('DOMContentLoaded', function () {
 		//loadGoogleFontWithLoader(fontParam);
 		loadAndApplyFont(fontParam);
 		
-		// Colors are applied synchronously above (not via API), so mark them ready now.
-		// fontReady is set by loadAndApplyFont itself once the font is actually loaded.
+		// Mark both as ready since they're loaded from URL params (not APIs)
+		apiState.fontReady = true;
 		apiState.colorsReady = true;
 		showContentIfReady();
 	} else {
@@ -347,14 +328,18 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 	
     // Change font and color on click
-	contentBody.addEventListener('click', function() {
+	contentBody.addEventListener('click', async () => {
         
         // Hide the content until both APIs complete
         const previewElementContentWrapper = document.querySelector('.content-wrapper');
         previewElementContentWrapper.classList.add('hidden');
 
-        getHuemintColors();
-        filterFontsByCategory(categorySelect.value);
+		try {
+	    // Fire off both API calls and wait for both to resolve
+	    await Promise.all([
+	      getHuemintColors();
+		  filterFontsByCategory(categorySelect.value);
+	    ]);
         
         if (favoriteButton.classList.contains('active')) {
 			favoriteButton.classList.remove('active');
