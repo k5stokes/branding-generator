@@ -286,6 +286,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const selectedCategory = event.target.value; // e.g., "sans-serif", "serif", "display"
 
         if (selectedCategory) {
+            // Hide the content until the new font is actually ready
+            const previewElementContentWrapper = document.querySelector('.content-wrapper');
+            previewElementContentWrapper.classList.add('hidden');
+
             filterFontsByCategory(selectedCategory);
         }
     });
