@@ -51,7 +51,8 @@ document.addEventListener('DOMContentLoaded', function () {
 	function showContentIfReady() {
 		console.log('showContentIfReady()');
 		if (apiState.fontReady && apiState.colorsReady) {
-			console.log('fontReady and ColorsReady');
+			console.log('apiState.fontReady = ' + apiState.fontReady);
+			console.log('apiState.colorsReady = ' + apiState.colorsReady);
 			const previewElementContentWrapper = document.querySelector('.content-wrapper');
 			if (previewElementContentWrapper && previewElementContentWrapper.classList.contains('hidden')) {
 				setTimeout(() => {
@@ -69,6 +70,10 @@ document.addEventListener('DOMContentLoaded', function () {
 			urlParams.set('color3', colorName3);
 			// Update the browser's URL bar with the new params
 			window.history.pushState({}, '', '?' + urlParams.toString());
+		} else {
+			console.log('not ready :(');
+			console.log('apiState.fontReady = ' + apiState.fontReady);
+			console.log('apiState.colorsReady = ' + apiState.colorsReady);
 		}
 	}
 
@@ -202,7 +207,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	*/
     
     // Huemint API Call
-	function getHuemintColors() {
+	async function getHuemintColors() {
 		var huemint_data = {
 			"mode":"transformer", // transformer, diffusion or random
 			"num_colors":4, // max 12, min 2
@@ -222,6 +227,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		.then(response => response.json())
 		.then(data => {
 			//console.log("HueMint Data Object: ", JSON.stringify(data, null, 2));
+			console.log('Colors loaded from HueMint');
 			
 			// Generate either 1 or 2 randomly
 			let randomNum = Math.floor(Math.random() * 2) + 1;
@@ -253,6 +259,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			colorElem3.style.color = getContrastColor(tertiaryColor);
 			accentElem2.style.backgroundColor = secondaryColor;
 			accentElem3.style.backgroundColor = tertiaryColor;
+			apiState.colorsReady = true;
 			showContentIfReady();
 		})
 		.catch(error => console.error("Error:", error));
@@ -312,7 +319,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		// Hide content wrapper initially
 		const previewElementContentWrapper = document.querySelector('.content-wrapper');
 		if (previewElementContentWrapper) {
-			//previewElementContentWrapper.classList.add('hidden');
+			previewElementContentWrapper.classList.add('hidden');
 		}
 		
 		getHuemintColors();
@@ -327,7 +334,7 @@ document.addEventListener('DOMContentLoaded', function () {
         
         // Hide the content until both APIs complete
         const previewElementContentWrapper = document.querySelector('.content-wrapper');
-        //previewElementContentWrapper.classList.add('hidden');
+        previewElementContentWrapper.classList.add('hidden');
 
         getHuemintColors();
         filterFontsByCategory(categorySelect.value);
