@@ -35,6 +35,16 @@
 .color-red {
 	color: darkred !important;
 }
+@media all and (max-width: 920px) {
+	.grid.grid-4-col {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+@media all and (max-width: 630px) {
+	.grid.grid-4-col {
+		grid-template-columns: 1fr;
+	}
+}
 
 /* Typography */
 p {
@@ -69,9 +79,14 @@ a.button.button-primary:hover, a.button.button-primary:active {
 }
 
 /* #content element */
+header {
+	position: fixed;
+	width: 100%;
+	z-index: 1;
+}
 #content {
 	text-align: center;
-	height: 50vh;
+	height: 35vh;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -109,6 +124,12 @@ a.button.button-primary:hover, a.button.button-primary:active {
 }
 .accent-color {
 	height: 60px;
+}
+
+/* Main Content */
+.branding-meta {
+	position: relative;
+	top: 45vh;
 }
 
 /* Favorites */
